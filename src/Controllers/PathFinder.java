@@ -2,6 +2,7 @@ package Controllers;
 
 
 import javafx.animation.Animation;
+import javafx.animation.FillTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -43,8 +44,8 @@ public class PathFinder implements Initializable {
     private Rectangle[][] gridCells = new Rectangle[gridRowNo][gridColNo];
 
     //dir array
-    private int[] dirX = {1, -1, 0, 0};
-    private int[] dirY = {0, 0, 1, -1};
+    private int[] dirX = {1, 0, -1, 0};
+    private int[] dirY = {0, 1, 0, -1};
 
     //ComboBox options
     private String[] nodeItems = {"Source", "Destination", "Wall"};
@@ -61,14 +62,17 @@ public class PathFinder implements Initializable {
     private Color pathColor = Color.web("green");
 
     //speed
-    private int speedControl = 70;
+    private int speedControl = 30;
+    private int transitionControl = 300;
 
     //timelines for algoshow
     Timeline orderTimeline, pathTimeline;
 
     //bfs
-    Queue< Pair<Integer, Integer> > orderOfAlgo = new LinkedList();
-    Queue< Pair<Integer, Integer> > pathOfAlgo = new LinkedList();
+    private Queue< Pair<Integer, Integer> > orderOfAlgo = new LinkedList();
+    private Queue< Pair<Integer, Integer> > pathOfAlgo = new LinkedList();
+    private Map<Pair<Integer, Integer> , Pair<Integer, Integer>> prevNode = new HashMap<>();
+    boolean gotDestination = false;
 
     //eventHandlers
     EventHandler<MouseEvent> cellHandler = event->{
@@ -130,17 +134,18 @@ public class PathFinder implements Initializable {
             //alarm code here
         }
         else {
-            switch (algoComboBox.getValue()){
-                case "Breadth-First-Search":
-                    bfs();
-                    algoShow();
-                    break;
-                case "Depth-First-Search":
-                    break;
-                default:
+            if(algoComboBox.getValue() == null){
 
             }
+            else if(algoComboBox.getValue() == algoItems[0]){
+                dfsWrapper();
+                algoShow();
+            }
 
+            else if(algoComboBox.getValue() == algoItems[1]){
+                bfs();
+                algoShow();
+            }
         }
     };
     //has to handle the glitch of clearing in the middle of algoshow
@@ -148,6 +153,7 @@ public class PathFinder implements Initializable {
         for(int i = 0; i< gridRowNo; i++){
             for(int j = 0;j < gridColNo; j++){
                 gridMask[i][j] = UNVISITED;
+                //gridCells[i][j].setStrokeWidth(0.7);
                 colorCell(i, j);
             }
         }
@@ -155,6 +161,20 @@ public class PathFinder implements Initializable {
         sourceY = -1;
         destinationX = -1;
         destinationY = -1;
+    };
+    EventHandler<ActionEvent> speedHandler = event -> {
+        if(speedComboBox.getValue() == speedItems[0]){
+            speedControl = 30;
+            transitionControl = 300;
+        }
+        else if(speedComboBox.getValue() == speedItems[1]){
+            speedControl = 50;
+            transitionControl = 500;
+        }
+        else if(speedComboBox.getValue() == speedItems[2]){
+            speedControl = 70;
+            transitionControl = 700;
+        }
     };
 
     public void colorCell(int x, int y){
@@ -186,6 +206,8 @@ public class PathFinder implements Initializable {
                 gridCells[i][j].setId(String.valueOf(cellId));
                 gridCells[i][j].setFill(unvisitedColor);
                 gridCells[i][j].getStyleClass().add("grid-cell");
+                gridCells[i][j].setStroke(Color.RED);
+                //gridCells[i][j].setStrokeWidth(0.7);
                 centerGrid.getChildren().add(gridCells[i][j]);
                 gridCells[i][j].addEventHandler(MouseEvent.MOUSE_CLICKED, cellHandler);
             }
@@ -198,15 +220,15 @@ public class PathFinder implements Initializable {
 
         visBtn.setOnAction(visualizeHandler);
         clearBtn.setOnAction(clearHandler);
+        speedComboBox.setOnAction(speedHandler);
     }
 
     public boolean bfs(){
         System.out.println("BFS");
 
         Queue< Pair<Integer, Integer> > q = new LinkedList();
-        Map<Pair<Integer, Integer> , Pair<Integer, Integer>> prevNode = new HashMap();
         q.add(new Pair<>(sourceX, sourceY));
-        boolean gotDestination = false;
+        gotDestination = false;
 
         while (!q.isEmpty() && !gotDestination){
             Pair<Integer, Integer> nod = q.poll();
@@ -255,13 +277,18 @@ public class PathFinder implements Initializable {
         orderTimeline.setCycleCount(Animation.INDEFINITE);
         pathTimeline.setCycleCount(Animation.INDEFINITE);
         orderTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(speedControl), event -> {
-            if(orderOfAlgo.isEmpty()){
+            if(orderOfAlgo.isEmpty() || (orderOfAlgo.peek().getKey() == destinationX && orderOfAlgo.peek().getValue() == destinationY)){
+                System.out.println("hola: " + orderOfAlgo.isEmpty());
+                orderOfAlgo.clear();
                 orderTimeline.stop();
                 pathTimeline.play();
             }
             else {
                 Pair<Integer, Integer> cur = orderOfAlgo.poll();
-                gridCells[cur.getKey()][cur.getValue()].setFill(visitedColor);
+                //gridCells[cur.getKey()][cur.getValue()].setStrokeWidth(0);
+                FillTransition rectTransition = new FillTransition(Duration.millis(transitionControl), gridCells[cur.getKey()][cur.getValue()]);
+                rectTransition.setToValue(visitedColor);
+                rectTransition.play();
             }
         }));
         pathTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(speedControl), event -> {
@@ -270,13 +297,55 @@ public class PathFinder implements Initializable {
             }
             else {
                 Pair<Integer, Integer> cur = pathOfAlgo.poll();
-                gridCells[cur.getKey()][cur.getValue()].setFill(pathColor);
+                //gridCells[cur.getKey()][cur.getValue()].setStrokeWidth(0);
+                FillTransition rectTransition = new FillTransition(Duration.millis(transitionControl), gridCells[cur.getKey()][cur.getValue()]);
+                rectTransition.setToValue(pathColor);
+                rectTransition.play();
             }
         }));
         orderTimeline.play();
     }
 
+    public void dfs(Pair<Integer, Integer> nod){
+        int x = nod.getKey(), y = nod.getValue();
+        if(gridMask[x][y] == DESTINATION){
+            gotDestination = true;
+            orderOfAlgo.add(nod);
+            return;
+        }
+        if(gridMask[x][y] == UNVISITED){
+            orderOfAlgo.add(nod);
+            gridMask[x][y] = VISITED;
+        }
+        for(int i = 0; i< 4; i++){
+            int adjX = x + dirX[i], adjY = y + dirY[i];
+            if(adjX >= 0 && adjX < gridRowNo && adjY >= 0 && adjY < gridColNo && (gridMask[adjX][adjY] == UNVISITED||gridMask[adjX][adjY] == DESTINATION)){
+                Pair<Integer, Integer> adjNod = new Pair<>(adjX, adjY);
+                prevNode.put(adjNod, nod);
+                dfs(adjNod);
+            }
+        }
+    }
 
+    public void dfsWrapper(){
+        gotDestination = false;
+        dfs(new Pair<>(sourceX, sourceY));
+
+        if(gotDestination){
+            Stack<Pair<Integer, Integer>> temp = new Stack<>();
+            Pair<Integer, Integer> cur = new Pair<>(destinationX, destinationY);
+            while (gridMask[cur.getKey()][cur.getValue()] != SOURCE){
+                cur = prevNode.get(cur);
+                temp.add(cur);
+            }
+            temp.pop();  //for removing the source cell
+            while (!temp.isEmpty()){
+                pathOfAlgo.add(temp.pop());
+            }
+        }
+
+
+    }
 }
 
 
