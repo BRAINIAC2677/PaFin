@@ -7,7 +7,6 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.VBox?>
 
-
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PathFinder">
    <top>
       <VBox prefHeight="152.0" prefWidth="1200.0" style="-fx-background-color: #777777;" BorderPane.alignment="CENTER">
@@ -15,7 +14,7 @@
             <FlowPane prefHeight="60.0" prefWidth="1200.0" />
             <FlowPane prefHeight="94.0" prefWidth="1200.0" style="-fx-background-color: #E2EF70;">
                <children>
-                  <Button mnemonicParsing="false" text="Visualize" />
+                  <Button fx:id="visBtn" mnemonicParsing="false" text="Visualize" />
                   <ComboBox fx:id="algoComboBox" prefWidth="150.0" promptText="Algorithms" />
                   <ComboBox prefWidth="150.0" promptText="Mazes" />
                   <ComboBox fx:id="themeComboBox" prefWidth="150.0" promptText="Themes" />
@@ -32,7 +31,7 @@
                   <Label alignment="CENTER" prefHeight="40.0" prefWidth="166.0" text="DRAW" />
                   <ComboBox fx:id="nodeComboBox" prefHeight="31.0" prefWidth="174.0" promptText="Node" />
                   <ComboBox fx:id="speedComboBox" prefHeight="27.0" prefWidth="174.0" promptText="Speed" />
-                  <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="174.0" text="Clear" />
+                  <Button fx:id="clearBtn" mnemonicParsing="false" prefHeight="40.0" prefWidth="174.0" text="Clear" />
                </children>
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #AEB8FE;" />
