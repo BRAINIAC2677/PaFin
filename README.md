@@ -22,6 +22,7 @@
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
+    <li><a href="#features">Features</a></li>
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
@@ -49,7 +50,13 @@ This is a pathfinding visualizer in a 2-D grid. As a beginner if you fail to gra
 
 * [JavaFX](https://openjfx.io/)
 
+## Features:
+1. Visualize BFS and DFS alogorithms.
+2. Find the shortest path using BFS considering all edgeweight same.
+3. Generate random mazes and recursion division maze.
+4. Control speed and theme.
 
+![](https://github.com/BRAINIAC2677/PaFin/blob/main/Assets/intro.gif)
 <!-- GETTING STARTED -->
 ## Getting Started
 
