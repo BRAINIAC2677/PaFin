@@ -9,10 +9,13 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
@@ -56,7 +59,7 @@ public class PathFinder implements Initializable {
     private final  int SOURCE = 3;
     private final  int DESTINATION = 4;
 
-    private int gridRowNo = 24, gridColNo = 46;
+    private int gridRowNo = 24, gridColNo = 47;
     private int cellWidth = 25, cellHeight = 25;
     private int sourceX = -1, sourceY = -1;
     private int destinationX = -1, destinationY = -1;
@@ -76,8 +79,8 @@ public class PathFinder implements Initializable {
 
     //colors
     private Color wallColor;
-    private Color sourceColor = Color.web("#f2a365");
-    private Color destinationColor = Color.web("red");
+    private Color sourceColor = Color.web("#ffe66d");
+    private Color destinationColor = Color.web("#0aff99");
     private Color unvisitedColor;
     private Color visitedColor;
     private Color pathColor;
@@ -105,9 +108,12 @@ public class PathFinder implements Initializable {
 
     //eventHandlers
     EventHandler<MouseEvent> cellHandler = event->{
-        Rectangle srcCell = (Rectangle)event.getSource();
+        Rectangle srcCell = (Rectangle)(event.getSource());
+        srcCell.requestFocus();
+
         int location = Integer.parseInt(srcCell.getId());
-        int locationX = location/100, locationY = location%100;
+        int locationX = location/100;
+        int locationY = location%100;
         //System.out.println(location);
         String nodeVal = nodeComboBox.getValue();
         if(nodeVal == null){
@@ -234,7 +240,7 @@ public class PathFinder implements Initializable {
         mazeShow();
     };
 
-    public void colorCell(int x, int y){
+    private void colorCell(int x, int y){
         switch (gridMask[x][y]){
             case UNVISITED:
                 gridCells[x][y].setFill(unvisitedColor);
@@ -267,7 +273,7 @@ public class PathFinder implements Initializable {
                 gridCells[i][j].setFill(unvisitedColor);
                 gridCells[i][j].getStyleClass().add("grid-cell");
                 gridCells[i][j].setStroke(Color.web(tertiaryColor));
-                gridCells[i][j].setStrokeWidth(0.7);
+                gridCells[i][j].setStrokeWidth(0.0);
                 centerGrid.getChildren().add(gridCells[i][j]);
                 gridCells[i][j].addEventHandler(MouseEvent.MOUSE_CLICKED, cellHandler);
             }
@@ -288,34 +294,46 @@ public class PathFinder implements Initializable {
         themeComboBox.setOnAction(themeHandler);
 
         imageView.setImage(logo);
-
-
+        //scene.setOnMouseDragged(cellHandler);
     }
 
-    public void dark(){
+    private void dark(){
         primaryColor = "#fdfffc";
-        secondaryColor = "#0b132b";
-        tertiaryColor = "#003459";
-        visitedColor = Color.web("#e84545");
+        secondaryColor = "#1c2541";
+        tertiaryColor = "#3a506b";
+        visitedColor = Color.web("#ff5d8f");
         unvisitedColor = Color.web(primaryColor);
-        wallColor = Color.web("00afb9");
+        wallColor = Color.web("#1e6091");
         pathColor = Color.web("black");
     }
 
-    public void light(){
+    private void light(){
         primaryColor = "#fdfffc";
-        secondaryColor = "#b6ccfe";
-        tertiaryColor = "#fed9b7";
-        visitedColor = Color.web("#c77dff");
+        secondaryColor = "#bfd7ff";
+        tertiaryColor = "#9bb1ff";
+        visitedColor = Color.web("#ffa5ab");
         unvisitedColor = Color.web(primaryColor);
         wallColor = Color.web("#00afb9");
         pathColor = Color.web("black");
     }
 
-    public void setColor(int flag){
+    // Helper method
+    private String format(double val) {
+        String in = Integer.toHexString((int) Math.round(val * 255));
+        return in.length() == 1 ? "0" + in : in;
+    }
+
+    private String toHexString(Color value) {
+        return "#" + (format(value.getRed()) + format(value.getGreen()) + format(value.getBlue()) + format(value.getOpacity()))
+                .toUpperCase();
+    }
+
+
+    private void setColor(int flag){
         titleBar.setStyle("-fx-background-color: "+secondaryColor+";");
         menuBar.setStyle("-fx-background-color: "+ tertiaryColor+";");
         sideBar.setStyle("-fx-background-color: "+secondaryColor+";");
+        centerGrid.setStyle("-fx-background-color: "+toHexString(wallColor)+";");
         wallSign.setFill(wallColor);
         sourceSign.setFill(sourceColor);
         destinationSign.setFill(destinationColor);
@@ -345,7 +363,7 @@ public class PathFinder implements Initializable {
     }
 
 
-    public boolean bfs(){
+    private boolean bfs(){
         System.out.println("BFS");
 
         Queue< Pair<Integer, Integer> > q = new LinkedList();
@@ -393,7 +411,7 @@ public class PathFinder implements Initializable {
         return gotDestination;
     }
 
-    public void algoShow(){
+    private void algoShow(){
         orderTimeline = new Timeline();
         pathTimeline = new Timeline();
         orderTimeline.setCycleCount(Animation.INDEFINITE);
@@ -428,7 +446,7 @@ public class PathFinder implements Initializable {
         orderTimeline.play();
     }
 
-    public void dfs(Pair<Integer, Integer> nod){
+    private void dfs(Pair<Integer, Integer> nod){
         int x = nod.getKey(), y = nod.getValue();
         if(gridMask[x][y] == DESTINATION){
             gotDestination = true;
@@ -449,7 +467,7 @@ public class PathFinder implements Initializable {
         }
     }
 
-    public void dfsWrapper(){
+    private void dfsWrapper(){
         gotDestination = false;
         dfs(new Pair<>(sourceX, sourceY));
 
@@ -469,12 +487,12 @@ public class PathFinder implements Initializable {
 
     }
 
-    public int myRand(int low, int high){
+    private int myRand(int low, int high){
         int range = high - low + 1;
         return (int)(Math.random()*range) + low;
     }
 
-    public void bfsMazeGenerator(){
+    private void bfsMazeGenerator(){
         System.out.println("BFS");
 
         Queue< Pair<Integer, Integer> > q = new LinkedList();
@@ -501,7 +519,7 @@ public class PathFinder implements Initializable {
             }
         }
     }
-    public void dfsMazeGenerator(int nodX, int nodY){
+    private void dfsMazeGenerator(int nodX, int nodY){
         if(gridMask[nodX][nodY] != UNVISITED){
             return;
         }
@@ -520,7 +538,7 @@ public class PathFinder implements Initializable {
 
     }
 
-    public void mazeShow(){
+    private void mazeShow(){
         Timeline mazeTimeline = new Timeline();
         mazeTimeline.setCycleCount(Animation.INDEFINITE);
         mazeTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(speedControl), event -> {
@@ -538,7 +556,7 @@ public class PathFinder implements Initializable {
     }
 
 
-    public void recursiveDivision(int startX, int endX, int startY, int endY){
+    private void recursiveDivision(int startX, int endX, int startY, int endY){
         if(Math.max(endX - startX,endY - startY) < 6){
             return;
         }

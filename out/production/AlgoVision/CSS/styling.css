@@ -1,0 +1,47 @@
+.root{
+    -fx-font-family: "Comic Sans MS";
+}
+
+*{
+    -fx-text-fill: e43f5a;
+
+}
+
+.grid-cell{
+
+}
+
+.color-label{
+
+}
+
+#heading1{
+    -fx-font-family: "Comic Sans MS";
+    -fx-font-size: 40px;
+    -fx-font-width: bolder;
+    -fx-font-style: italic;
+}
+
+#heading2{
+    -fx-font-size: 25px;
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+}
+
+.label{
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+.button{
+    -fx-font-size: 16px;
+}
+
+.combo-box{
+    -fx-font-size: 14px;
+    -fx-font-width: normal;
+}
+
+.combo-box .list-cell{
+
+}
