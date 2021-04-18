@@ -41,7 +41,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](Assets/about.png)
+![PaFin ScreenShot](Assets/about.png)
 
 This is a pathfinding visualizer in a 2-D grid. As a beginner if you fail to grasp the bfs/dfs algorithms, this is for you.The project was implemented using Java and JavaFX. This is my first Java and JavaFX project. 
 
