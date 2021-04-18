@@ -72,7 +72,7 @@ public class PathFinder implements Initializable {
     private String[] speedItems = {"Fast", "Medium", "Slow"};
     private String[] algoItems = {"Depth-First-Search", "Breadth-First-Search"};
     private String[] themeItems = {"Light", "Dark"};
-    private String[] mazeItems = {"BFS Maze", "DFS Maze"};
+    private String[] mazeItems = {"BFS Maze", "DFS Maze", "Recursive Division"};
 
     //colors
     private Color wallColor;
@@ -227,7 +227,10 @@ public class PathFinder implements Initializable {
                 dfsMazeGenerator(myRand(0, gridRowNo-1), myRand(0, gridColNo-1));
             }
         }
-        System.out.println(orderOfMaze);
+        else if(mazeComboBox.getValue() == mazeItems[2]){
+            recursiveDivision( 0, gridRowNo-1, 0, gridColNo-1);
+        }
+        //System.out.println(orderOfMaze);
         mazeShow();
     };
 
@@ -532,6 +535,48 @@ public class PathFinder implements Initializable {
             }
         }));
         mazeTimeline.play();
+    }
+
+
+    public void recursiveDivision(int startX, int endX, int startY, int endY){
+        if(Math.max(endX - startX,endY - startY) < 6){
+            return;
+        }
+        //vertical division
+        int flag = 1;
+        if(endX - startX > endY - startY){
+            flag = 0;
+        }
+        if(flag == 1){
+            int fixedY = (startY + endY)/2;
+            int passageX = myRand(startX + 1, endX - 2);
+            while (passageX == (startX + endX)/2){
+                passageX = myRand(startX + 1, endX - 2);
+            }
+            for(int i = startX; i <= endX; i++){
+                if(i != passageX && i != (passageX + 1)) {
+                    orderOfMaze.add(new Pair<>(i, fixedY));
+                    gridMask[i][fixedY] = WALL;
+                }
+            }
+            recursiveDivision( startX, endX, startY, fixedY-1);
+            recursiveDivision( startX, endX, fixedY + 1, endY);
+        }
+        else{
+            int fixedX = (startX + endX)/2;
+            int passageY = myRand(startY + 1, endY - 2);
+            while (passageY == (startY + endY)/2){
+                passageY = myRand(startY + 1, endY - 2);
+            }
+            for(int i = startY; i <= endY; i++){
+                if(i != passageY && i != (passageY + 1)){
+                    orderOfMaze.add(new Pair<>(fixedX, i));
+                    gridMask[fixedX][i] = WALL;
+                }
+            }
+            recursiveDivision( startX, fixedX-1, startY, endY);
+            recursiveDivision( fixedX + 1, endX, startY, endY);
+        }
     }
 }
 
