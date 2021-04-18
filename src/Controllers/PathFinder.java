@@ -11,12 +11,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import javafx.util.Pair;
+import com.jfoenix.controls.*;
 
 import java.net.URL;
 import java.util.*;
@@ -29,6 +35,18 @@ public class PathFinder implements Initializable {
     @FXML private ComboBox<String> themeComboBox;
     @FXML private Button visBtn;
     @FXML private Button clearBtn;
+    @FXML private ImageView imageView;
+    @FXML private FlowPane titleBar;
+    @FXML private FlowPane menuBar;
+    @FXML private VBox sideBar;
+    @FXML private Rectangle wallSign;
+    @FXML private Rectangle sourceSign;
+    @FXML private Rectangle destinationSign;
+    @FXML private Rectangle visitedSign;
+    @FXML private Rectangle unvisitedSign;
+
+
+    Image logo = new Image("Images/Pafin.png");
 
     private final  int UNVISITED = 0;
     private final int VISITED = 1;
@@ -36,7 +54,7 @@ public class PathFinder implements Initializable {
     private final  int SOURCE = 3;
     private final  int DESTINATION = 4;
 
-    private int gridRowNo = 20, gridColNo = 38;
+    private int gridRowNo = 24, gridColNo = 46;
     private int cellWidth = 25, cellHeight = 25;
     private int sourceX = -1, sourceY = -1;
     private int destinationX = -1, destinationY = -1;
@@ -48,18 +66,23 @@ public class PathFinder implements Initializable {
     private int[] dirY = {0, 1, 0, -1};
 
     //ComboBox options
-    private String[] nodeItems = {"Source", "Destination", "Wall"};
+    private String[] nodeItems = {"Wall", "Source", "Destination"};
     private String[] speedItems = {"Fast", "Medium", "Slow"};
     private String[] algoItems = {"Depth-First-Search", "Breadth-First-Search"};
     private String[] themeItems = {"Light", "Dark"};
 
     //colors
-    private Color wallColor = Color.web("#EF709D");
-    private Color sourceColor = Color.web("#E2EF70");
+    private Color wallColor;
+    private Color sourceColor = Color.web("#f2a365");
     private Color destinationColor = Color.web("red");
-    private Color unvisitedColor = Color.web("white");
-    private Color visitedColor = Color.web("blue");
-    private Color pathColor = Color.web("green");
+    private Color unvisitedColor;
+    private Color visitedColor;
+    private Color pathColor;
+    private String primaryColor;
+    private String secondaryColor;
+    private String tertiaryColor;
+
+
 
     //speed
     private int speedControl = 30;
@@ -73,6 +96,7 @@ public class PathFinder implements Initializable {
     private Queue< Pair<Integer, Integer> > pathOfAlgo = new LinkedList();
     private Map<Pair<Integer, Integer> , Pair<Integer, Integer>> prevNode = new HashMap<>();
     boolean gotDestination = false;
+
 
     //eventHandlers
     EventHandler<MouseEvent> cellHandler = event->{
@@ -176,6 +200,15 @@ public class PathFinder implements Initializable {
             transitionControl = 700;
         }
     };
+    EventHandler<ActionEvent> themeHandler = event -> {
+        if(themeComboBox.getValue() == themeItems[0]){
+            light();
+        }
+        else if(themeComboBox.getValue() == themeItems[1]){
+            dark();
+        }
+        setColor(1);
+    };
 
     public void colorCell(int x, int y){
         switch (gridMask[x][y]){
@@ -195,6 +228,9 @@ public class PathFinder implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        //initial theme
+        light();
+        setColor(0);
 
         //adding grid cells
         for(int i = 0;i < gridRowNo; i++){
@@ -206,22 +242,83 @@ public class PathFinder implements Initializable {
                 gridCells[i][j].setId(String.valueOf(cellId));
                 gridCells[i][j].setFill(unvisitedColor);
                 gridCells[i][j].getStyleClass().add("grid-cell");
-                gridCells[i][j].setStroke(Color.RED);
-                //gridCells[i][j].setStrokeWidth(0.7);
+                gridCells[i][j].setStroke(Color.web(tertiaryColor));
+                gridCells[i][j].setStrokeWidth(0.7);
                 centerGrid.getChildren().add(gridCells[i][j]);
                 gridCells[i][j].addEventHandler(MouseEvent.MOUSE_CLICKED, cellHandler);
             }
         }
         //adding combobox items
         nodeComboBox.getItems().addAll(nodeItems);
+        nodeComboBox.setValue(nodeItems[0]);
         speedComboBox.getItems().addAll(speedItems);
+        speedComboBox.setValue(speedItems[0]);
         algoComboBox.getItems().addAll(algoItems);
         themeComboBox.getItems().addAll(themeItems);
 
         visBtn.setOnAction(visualizeHandler);
         clearBtn.setOnAction(clearHandler);
         speedComboBox.setOnAction(speedHandler);
+        themeComboBox.setOnAction(themeHandler);
+
+        imageView.setImage(logo);
+
+
     }
+
+    public void dark(){
+        primaryColor = "#fdfffc";
+        secondaryColor = "#0b132b";
+        tertiaryColor = "#003459";
+        visitedColor = Color.web("#e84545");
+        unvisitedColor = Color.web(primaryColor);
+        wallColor = Color.web("00afb9");
+        pathColor = Color.web("black");
+    }
+
+    public void light(){
+        primaryColor = "#fdfffc";
+        secondaryColor = "#b6ccfe";
+        tertiaryColor = "#fed9b7";
+        visitedColor = Color.web("#c77dff");
+        unvisitedColor = Color.web(primaryColor);
+        wallColor = Color.web("#00afb9");
+        pathColor = Color.web("black");
+    }
+
+
+    public void setColor(int flag){
+        titleBar.setStyle("-fx-background-color: "+secondaryColor+";");
+        menuBar.setStyle("-fx-background-color: "+ tertiaryColor+";");
+        sideBar.setStyle("-fx-background-color: "+secondaryColor+";");
+        wallSign.setFill(wallColor);
+        sourceSign.setFill(sourceColor);
+        destinationSign.setFill(destinationColor);
+        visitedSign.setFill(visitedColor);
+        unvisitedSign.setFill(unvisitedColor);
+
+        for(int i = 0; i< gridRowNo && flag == 1; i++){
+            for(int j = 0;j < gridColNo; j++){
+                if(gridMask[i][j] == UNVISITED){
+                    gridCells[i][j].setFill(unvisitedColor);
+                }
+                else if(gridMask[i][j] == VISITED){
+                    gridCells[i][j].setFill(visitedColor);
+                }
+                else if(gridMask[i][j] == WALL){
+                    gridCells[i][j].setFill(wallColor);
+                }
+                else if(gridMask[i][j] == SOURCE){
+                    gridCells[i][j].setFill(sourceColor);
+                }
+                else if(gridMask[i][j] == DESTINATION){
+                    gridCells[i][j].setFill(destinationColor);
+                }
+
+            }
+        }
+    }
+
 
     public boolean bfs(){
         System.out.println("BFS");
