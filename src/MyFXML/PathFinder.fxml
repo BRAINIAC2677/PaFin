@@ -11,15 +11,19 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="740.0" prefWidth="1398.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PathFinder">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="740.0" prefWidth="1398.0" xmlns="http://javafx.com/javafx/    private int myRand(int low, int high){
+    //generates random number between low and high
+        int range = high - low + 1;
+        return (int)(Math.random()*range) + low;
+    }" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PathFinder">
    <top>
       <VBox prefHeight="126.0" prefWidth="1200.0" BorderPane.alignment="CENTER">
          <children>
             <FlowPane fx:id="titleBar" prefHeight="80.0" prefWidth="1200.0">
                <children>
-                  <Label prefHeight="78.0" prefWidth="61.0" />
-                  <ImageView fx:id="imageView" fitHeight="80.0" fitWidth="151.0" pickOnBounds="true" preserveRatio="true" />
-                  <Label id="heading1" prefHeight="80.0" prefWidth="455.0" text="PaFin">
+                  <Label prefHeight="78.0" prefWidth="38.0" />
+                  <ImageView fx:id="leftImageView" fitHeight="80.0" fitWidth="151.0" pickOnBounds="true" preserveRatio="true" />
+                  <Label id="heading1" prefHeight="80.0" prefWidth="154.0" text="PaFin">
                      <FlowPane.margin>
                         <Insets />
                      </FlowPane.margin>
@@ -27,6 +31,7 @@
                         <Insets left="40.0" />
                      </padding>
                   </Label>
+                  <ImageView fx:id="rightImageView" fitHeight="79.0" fitWidth="151.0" pickOnBounds="true" preserveRatio="true" />
                </children></FlowPane>
             <FlowPane fx:id="menuBar" alignment="CENTER" hgap="40.0" prefHeight="46.0" prefWidth="1200.0">
                <children>

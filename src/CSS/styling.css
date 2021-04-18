@@ -1,31 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
+
 .root{
-    -fx-font-family: "Comic Sans MS";
+    -fx-font-family: Algerian;
 }
 
 *{
-    -fx-text-fill: e43f5a;
-
-}
-
-.grid-cell{
-
-}
-
-.color-label{
-
+    -fx-text-fill: "#e43f5a";
 }
 
 #heading1{
-    -fx-font-family: "Comic Sans MS";
+    -fx-font-family: 'Dancing Script', cursive;
     -fx-font-size: 40px;
     -fx-font-width: bolder;
     -fx-font-style: italic;
 }
 
 #heading2{
-    -fx-font-size: 25px;
+    -fx-font-family: 'Dancing Script', cursive;
+    -fx-font-size: 30px;
     -fx-font-style: italic;
-    -fx-font-weight: bold;
+    -fx-font-weight: bolder;
 }
 
 .label{
@@ -40,8 +34,4 @@
 .combo-box{
     -fx-font-size: 14px;
     -fx-font-width: normal;
-}
-
-.combo-box .list-cell{
-
 }
