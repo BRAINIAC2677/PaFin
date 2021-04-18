@@ -30,9 +30,10 @@
                </children></FlowPane>
             <FlowPane fx:id="menuBar" alignment="CENTER" hgap="40.0" prefHeight="46.0" prefWidth="1200.0">
                <children>
+                  <Button fx:id="autoMazeBtn" mnemonicParsing="false" text="Auto Maze" />
                   <Button fx:id="visBtn" mnemonicParsing="false" text="Visualize" />
                   <ComboBox fx:id="algoComboBox" prefWidth="150.0" promptText="Algorithms" />
-                  <ComboBox prefWidth="150.0" promptText="Mazes" />
+                  <ComboBox fx:id="mazeComboBox" prefWidth="150.0" promptText="Mazes" />
                   <ComboBox fx:id="themeComboBox" prefWidth="150.0" promptText="Themes" />
                </children>
             </FlowPane>

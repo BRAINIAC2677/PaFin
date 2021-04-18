@@ -33,8 +33,10 @@ public class PathFinder implements Initializable {
     @FXML private ComboBox<String> speedComboBox;
     @FXML private ComboBox<String> algoComboBox;
     @FXML private ComboBox<String> themeComboBox;
+    @FXML private ComboBox<String> mazeComboBox;
     @FXML private Button visBtn;
     @FXML private Button clearBtn;
+    @FXML private Button autoMazeBtn;
     @FXML private ImageView imageView;
     @FXML private FlowPane titleBar;
     @FXML private FlowPane menuBar;
@@ -70,6 +72,7 @@ public class PathFinder implements Initializable {
     private String[] speedItems = {"Fast", "Medium", "Slow"};
     private String[] algoItems = {"Depth-First-Search", "Breadth-First-Search"};
     private String[] themeItems = {"Light", "Dark"};
+    private String[] mazeItems = {"BFS Maze", "DFS Maze"};
 
     //colors
     private Color wallColor;
@@ -91,11 +94,13 @@ public class PathFinder implements Initializable {
     //timelines for algoshow
     Timeline orderTimeline, pathTimeline;
 
-    //bfs
+    //main Algos
     private Queue< Pair<Integer, Integer> > orderOfAlgo = new LinkedList();
     private Queue< Pair<Integer, Integer> > pathOfAlgo = new LinkedList();
+    private Queue< Pair<Integer, Integer> > orderOfMaze = new LinkedList();
     private Map<Pair<Integer, Integer> , Pair<Integer, Integer>> prevNode = new HashMap<>();
     boolean gotDestination = false;
+    private int minConnectedComp = 50, maxConnectedComp = 60, randomness = 3;
 
 
     //eventHandlers
@@ -209,6 +214,22 @@ public class PathFinder implements Initializable {
         }
         setColor(1);
     };
+    EventHandler<ActionEvent> mazeHandler = event -> {
+        if(mazeComboBox.getValue() == mazeItems[0]){
+            int connectedComp = myRand(minConnectedComp, maxConnectedComp);
+            for(int i = 0; i < connectedComp; i++){
+                bfsMazeGenerator();
+            }
+        }
+        else if (mazeComboBox.getValue() == mazeItems[1]){
+            int connectedComp = myRand(minConnectedComp, maxConnectedComp);
+            for(int i = 0; i < connectedComp; i++){
+                dfsMazeGenerator(myRand(0, gridRowNo-1), myRand(0, gridColNo-1));
+            }
+        }
+        System.out.println(orderOfMaze);
+        mazeShow();
+    };
 
     public void colorCell(int x, int y){
         switch (gridMask[x][y]){
@@ -255,9 +276,11 @@ public class PathFinder implements Initializable {
         speedComboBox.setValue(speedItems[0]);
         algoComboBox.getItems().addAll(algoItems);
         themeComboBox.getItems().addAll(themeItems);
+        mazeComboBox.getItems().addAll(mazeItems);
 
         visBtn.setOnAction(visualizeHandler);
         clearBtn.setOnAction(clearHandler);
+        autoMazeBtn.setOnAction(mazeHandler);
         speedComboBox.setOnAction(speedHandler);
         themeComboBox.setOnAction(themeHandler);
 
@@ -285,7 +308,6 @@ public class PathFinder implements Initializable {
         wallColor = Color.web("#00afb9");
         pathColor = Color.web("black");
     }
-
 
     public void setColor(int flag){
         titleBar.setStyle("-fx-background-color: "+secondaryColor+";");
@@ -442,6 +464,74 @@ public class PathFinder implements Initializable {
         }
 
 
+    }
+
+    public int myRand(int low, int high){
+        int range = high - low + 1;
+        return (int)(Math.random()*range) + low;
+    }
+
+    public void bfsMazeGenerator(){
+        System.out.println("BFS");
+
+        Queue< Pair<Integer, Integer> > q = new LinkedList();
+        q.add(new Pair<>(myRand(0, gridRowNo-1), myRand(0, gridColNo-1)));
+
+        while (!q.isEmpty()){
+            Pair<Integer, Integer> nod = q.poll();
+            int nodX = nod.getKey();
+            int nodY = nod.getValue();
+            for(int i = 0; i < 4; i++){
+                int adjX = nodX + dirX[i];
+                int adjY = nodY + dirY[i];
+                if(adjX >= 0 && adjX < gridRowNo && adjY >=0 && adjY < gridColNo){
+                    if(gridMask[adjX][adjY] == UNVISITED){
+                        int toss = myRand(0, randomness);
+                        if(toss != 0){
+                            continue;
+                        }
+                        gridMask[adjX][adjY] = WALL;
+                        orderOfMaze.add(new Pair<>(adjX, adjY));
+                        q.add(new Pair<>(adjX, adjY));
+                    }
+                }
+            }
+        }
+    }
+    public void dfsMazeGenerator(int nodX, int nodY){
+        if(gridMask[nodX][nodY] != UNVISITED){
+            return;
+        }
+        orderOfMaze.add(new Pair<>(nodX, nodY));
+        gridMask[nodX][nodY] = WALL;
+        for(int i = 0; i< 4; i++){
+            int adjX = nodX + dirX[i], adjY = nodY + dirY[i];
+            if(adjX >= 0 && adjX < gridRowNo && adjY >= 0 && adjY < gridColNo){
+                int toss = myRand(0, randomness);
+                if( toss != 0){
+                    continue;
+                }
+                dfsMazeGenerator(adjX, adjY);
+            }
+        }
+
+    }
+
+    public void mazeShow(){
+        Timeline mazeTimeline = new Timeline();
+        mazeTimeline.setCycleCount(Animation.INDEFINITE);
+        mazeTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(speedControl), event -> {
+            if(orderOfMaze.isEmpty()){
+                mazeTimeline.stop();
+            }
+            else{
+                Pair<Integer, Integer> cur = orderOfMaze.poll();
+                FillTransition rectTransition = new FillTransition(Duration.millis(transitionControl), gridCells[cur.getKey()][cur.getValue()]);
+                rectTransition.setToValue(wallColor);
+                rectTransition.play();
+            }
+        }));
+        mazeTimeline.play();
     }
 }
 
