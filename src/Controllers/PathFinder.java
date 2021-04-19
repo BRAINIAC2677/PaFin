@@ -13,7 +13,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -25,6 +27,7 @@ import java.net.URL;
 import java.util.*;
 
 public class PathFinder implements Initializable {
+    @FXML private BorderPane mainBorderPane;
     @FXML private FlowPane centerGrid;
     @FXML private ComboBox<String> nodeComboBox;
     @FXML private ComboBox<String> speedComboBox;
@@ -47,6 +50,7 @@ public class PathFinder implements Initializable {
 
 
     Image logo = new Image("Images/Pafin.png");
+    private boolean dPressed = false;
 
     //defining cell states
     private final  int UNVISITED = 0;
@@ -103,6 +107,9 @@ public class PathFinder implements Initializable {
     /*eventHandlers*/
     EventHandler<MouseEvent> cellHandler = event->{
     //for handling cell selection by Mouse
+        if(event.getEventType().equals(MouseEvent.MOUSE_ENTERED) && dPressed == false){
+            return;
+        }
         Rectangle srcCell = (Rectangle)(event.getSource());
         int location = Integer.parseInt(srcCell.getId());
         int locationX = location/100;
@@ -248,6 +255,7 @@ public class PathFinder implements Initializable {
                 gridCells[i][j].setStroke(Color.web(tertiaryColor));
                 gridCells[i][j].setStrokeWidth(0.0);
                 centerGrid.getChildren().add(gridCells[i][j]);
+                gridCells[i][j].addEventHandler(MouseEvent.MOUSE_ENTERED, cellHandler);
                 gridCells[i][j].addEventHandler(MouseEvent.MOUSE_CLICKED, cellHandler);
             }
         }
@@ -266,9 +274,21 @@ public class PathFinder implements Initializable {
         autoMazeBtn.setOnAction(mazeHandler);
         speedComboBox.setOnAction(speedHandler);
         themeComboBox.setOnAction(themeHandler);
+        //another way of eventlistener
+        mainBorderPane.addEventHandler(KeyEvent.KEY_TYPED, keyEvent -> handleDPress(keyEvent));
 
         leftImageView.setImage(logo);
         rightImageView.setImage(logo);
+    }
+
+    public void handleDPress(KeyEvent event){
+        System.out.println(event.getCharacter());
+        if(event.getCharacter().equals("d")){
+            dPressed = true;
+        }
+        else if(event.getCharacter().equals("D")){
+            dPressed = false;
+        }
     }
     
     private void colorCell(int x, int y){
