@@ -31,7 +31,6 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#unhandled-bugs">Unhandled Bugs</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -88,12 +87,6 @@ This is an example of how to list things you need to use the software and how to
 ## Usage
 
 PaFin will help to better visualize different pathfinding algorithms for anyone.
-
-
-## Unhandled Bugs
-
-* Clearing while visualization is running.
-* Changing themes erase the shortest path if it was there.
 
 
 <!-- LICENSE -->
