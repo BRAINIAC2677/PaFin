@@ -9,8 +9,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DialogPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -51,6 +53,7 @@ public class PathFinder implements Initializable {
 
     Image logo = new Image("Images/Pafin.png");
     private boolean dPressed = false;
+    private boolean timelineOn = false;
 
     //defining cell states
     private final  int UNVISITED = 0;
@@ -58,6 +61,7 @@ public class PathFinder implements Initializable {
     private final  int WALL = 2;
     private final  int SOURCE = 3;
     private final  int DESTINATION = 4;
+    private final  int PATH = 5;
 
     //grid info
     private final int gridRowNo = 24, gridColNo = 47;
@@ -166,11 +170,15 @@ public class PathFinder implements Initializable {
     //for handling click on the visualize button
         if(sourceX == -1 || destinationX == -1){
             //System.out.println("No source or destination");
-            //alarm code here
+            String title = "Incomplete Graph";
+            String body = "To visualize you must select the source and the destination cell. Select them and try again.";
+            alerting(title, body);
         }
         else {
             if(algoComboBox.getValue() == null){
-                //Alert for no algo selection
+                String title = "No Algorithm";
+                String body = "Select an algorithm first to visualize it and try again.";
+                alerting(title, body);
             }
             else if(algoComboBox.getValue().equals(algoItems[0])){
                 dfsWrapper();
@@ -184,7 +192,12 @@ public class PathFinder implements Initializable {
         }
     };
     EventHandler<ActionEvent> clearHandler = event -> {
-    //has to handle the glitch of clearing in the middle of algorithmShow
+        if(timelineOn){
+            String title = "Animation On";
+            String body = "Clear the grid after the Animation Finishes!!";
+            alerting(title, body);
+            return;
+        }
         for(int i = 0; i< gridRowNo; i++){
             for(int j = 0;j < gridColNo; j++){
                 gridMask[i][j] = UNVISITED;
@@ -208,6 +221,12 @@ public class PathFinder implements Initializable {
         }
     };
     EventHandler<ActionEvent> themeHandler = event -> {
+        if(timelineOn){
+            String title = "Animation On";
+            String body = "Change the theme after the animation/visualization finishes.You can not change theme during animation.";
+            alerting(title, body);
+            return;
+        }
         if(themeComboBox.getValue() == themeItems[0]){
             light();
         }
@@ -217,7 +236,12 @@ public class PathFinder implements Initializable {
         setUIColor(1);
     };
     EventHandler<ActionEvent> mazeHandler = event -> {
-        if(mazeComboBox.getValue() == mazeItems[0]){
+        if(mazeComboBox.getValue() == null){
+            String title = "Select Maze";
+            String body = "You must select a maze first to create an Automaze. Select a maze and try again.";
+            alerting(title, body);
+        }
+        else if(mazeComboBox.getValue() == mazeItems[0]){
             int connectedComp = myRand(minConnectedComp, maxConnectedComp);
             for(int i = 0; i < connectedComp; i++){
                 //one iteration of bfsMazeGenerator creates a single component
@@ -240,7 +264,7 @@ public class PathFinder implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //initial settings
-        light();
+        dark();
         setUIColor(0);
         fast();
         //creating and adding grid cells
@@ -279,6 +303,7 @@ public class PathFinder implements Initializable {
 
         leftImageView.setImage(logo);
         rightImageView.setImage(logo);
+
     }
 
     public void handleDPress(KeyEvent event){
@@ -312,6 +337,17 @@ public class PathFinder implements Initializable {
         //generates random number between low and high
         int range = high - low + 1;
         return (int)(Math.random()*range) + low;
+    }
+
+    public void alerting(String title, String body){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add("CSS/styling.css");
+        dialogPane.getStyleClass().add("my-alerts");
+        alert.setTitle(title);
+        alert.setHeaderText(title);
+        alert.setContentText(body);
+        alert.show();
     }
     
     public void fast(){
@@ -373,7 +409,9 @@ public class PathFinder implements Initializable {
                 else if(gridMask[i][j] == DESTINATION){
                     gridCells[i][j].setFill(destinationColor);
                 }
-
+                else if(gridMask[i][j] == PATH){
+                    gridCells[i][j].setFill(pathColor);
+                }
             }
         }
     }
@@ -429,7 +467,9 @@ public class PathFinder implements Initializable {
             temp.pop();  //for removing the source cell
             //reversing the order
             while (!temp.isEmpty()){
-                pathOfAlgo.add(temp.pop());
+                Pair<Integer, Integer> pair = temp.pop();
+                gridMask[pair.getKey()][pair.getValue()] = PATH;
+                pathOfAlgo.add(pair);
             }
         }
     }
@@ -466,7 +506,9 @@ public class PathFinder implements Initializable {
             }
             temp.pop();  //for removing the source cell
             while (!temp.isEmpty()){
-                pathOfAlgo.add(temp.pop());
+                Pair<Integer, Integer> pair = temp.pop();
+                gridMask[pair.getKey()][pair.getValue()] = PATH;
+                pathOfAlgo.add(pair);
             }
         }
 
@@ -486,6 +528,7 @@ public class PathFinder implements Initializable {
                 pathTimeline.play();
             }
             else {
+                timelineOn = true;
                 Pair<Integer, Integer> cur = orderOfAlgo.poll();
                 FillTransition rectTransition = new FillTransition(Duration.millis(transitionControl), gridCells[cur.getKey()][cur.getValue()]);
                 rectTransition.setToValue(visitedColor);
@@ -495,8 +538,10 @@ public class PathFinder implements Initializable {
         pathTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(speedControl), event -> {
             if(pathOfAlgo.isEmpty()){
                 pathTimeline.stop();
+                timelineOn = false;
             }
             else {
+                timelineOn = true;
                 Pair<Integer, Integer> cur = pathOfAlgo.poll();
                 FillTransition rectTransition = new FillTransition(Duration.millis(transitionControl), gridCells[cur.getKey()][cur.getValue()]);
                 rectTransition.setToValue(pathColor);
@@ -599,9 +644,12 @@ public class PathFinder implements Initializable {
         mazeTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(speedControl), event -> {
             if(orderOfMaze.isEmpty()){
                 mazeTimeline.stop();
+                timelineOn = false;
             }
             else{
+                timelineOn = true;
                 Pair<Integer, Integer> cur = orderOfMaze.poll();
+                //gridMask[cur.getKey()][cur.getValue()]  = WALL;
                 FillTransition rectTransition = new FillTransition(Duration.millis(transitionControl), gridCells[cur.getKey()][cur.getValue()]);
                 rectTransition.setToValue(wallColor);
                 rectTransition.play();

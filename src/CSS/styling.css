@@ -4,10 +4,6 @@
     -fx-font-family: Algerian;
 }
 
-*{
-    -fx-text-fill: "#e43f5a";
-}
-
 #heading1{
     -fx-font-family: 'Dancing Script', cursive;
     -fx-font-size: 40px;
@@ -22,7 +18,8 @@
     -fx-font-weight: bolder;
 }
 
-.label{
+.my-label{
+    -fx-text-fill: "#e43f5a";
     -fx-font-size: 14px;
     -fx-font-weight: normal;
 }
@@ -34,4 +31,15 @@
 .combo-box{
     -fx-font-size: 14px;
     -fx-font-width: normal;
+}
+
+.my-alerts{
+    -fx-background-color: wheat;
+    -fx-text-fill: black;
+}
+
+.quick-start{
+    -fx-background-color: "caf0f8";
+    -fx-font-size: 14 px;
+    -fx-text-fill: black;
 }
