@@ -56,7 +56,7 @@ This is a pathfinding visualizer in a 2-D grid. As a beginner if you fail to gra
 4. Press ***d*** for smooth draw mode on and ***Shift + d*** that is ***D*** for smooth draw mode off.
 5. Control speed and theme.
 
-![](https://github.com/BRAINIAC2677/PaFin/blob/main/Assets/intro.gif)
+![](https://github.com/BRAINIAC2677/PaFin/blob/main/Assets/demo.gif)
 <!-- GETTING STARTED -->
 ## Getting Started
 
